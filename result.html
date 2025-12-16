@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>考试结果 - 智星考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        /* 智星平台设计风格 */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease;
+        }
+        
+        /* 主题颜色定义 */
+        .theme-wine body {
+            background-color: #fdf2f4;
+        }
+        
+        .theme-blue body {
+            background-color: #e6f2ff;
+        }
+        
+        .theme-green body {
+            background-color: #e6f7f2;
+        }
+        
+        /* 主题选择器 */
+        .theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .theme-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        .theme-btn.active {
+            transform: scale(1.3);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+        }
+        
+        .theme-btn[data-theme="wine"] {
+            background: linear-gradient(135deg, #8b0000 0%, #a52a2a 100%);
+        }
+        
+        .theme-btn[data-theme="blue"] {
+            background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
+        }
+        
+        .theme-btn[data-theme="green"] {
+            background: linear-gradient(135deg, #006400 0%, #228b22 100%);
+        }
+        
+        /* 顶部导航栏 */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        /* 结果容器 */
+        .result-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        /* 成绩卡片 */
+        .score-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 3rem;
+            font-weight: bold;
+        }
+        
+        .score-info {
+            margin-bottom: 10px;
+        }
+        
+        /* 详细结果区域 */
+        .detail-section {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+        }
+        
+        .question-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .question-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .question-number {
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .question-status {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-correct {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .answer-info {
+            margin-top: 10px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .user-answer {
+            background-color: #f8f9fa;
+            margin-bottom: 10px;
+        }
+        
+        .correct-answer {
+            background-color: #d4edda;
+        }
+        
+        .explanation {
+            background-color: #e3f2fd;
+            margin-top: 10px;
+        }
+        
+        /* 按钮样式 */
+        .action-btn {
+            margin: 10px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .back-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body class="theme-wine">
+    <!-- 主题选择器 -->
+    <div class="theme-selector">
+        <button class="theme-btn active" data-theme="wine" title="酒红色"></button>
+        <button class="theme-btn" data-theme="blue" title="深蓝色"></button>
+        <button class="theme-btn" data-theme="green" title="深绿色"></button>
+    </div>
+    
+    <!-- 顶部导航栏 -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-star-fill"></i> 智星
+            </a>
+        </div>
+    </nav>
+    
+    <div class="result-container">
+        <!-- 成绩卡片 -->
+        <div class="score-card">
+            <h1>考试结果</h1>
+            <h2 class="score-info">考试: {{ exam.title }}</h2>
+            <h3 class="score-info">考生: {{ submission.student_name }}</h3>
+            <div class="score-circle">
+                {{ submission.score }}
+            </div>
+            <p class="score-info">得分: {{ submission.score }} / {{ submission.total_score }}</p>
+            <p class="score-info">用时: {{ submission.time_taken // 60 }} 分 {{ submission.time_taken % 60 }} 秒</p>
+            <p class="score-info">提交时间: {{ submission.submitted_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            <div>
+                <button class="action-btn back-btn" onclick="window.location.href='/dashboard'">
+                    <i class="bi bi-arrow-left"></i> 返回仪表盘
+                </button>
+            </div>
+        </div>
+        
+        <!-- 详细结果 -->
+        <div class="detail-section">
+            <h3>答题详情</h3>
+            
+            <!-- 详细结果将通过JavaScript动态加载 -->
+            <div id="detailsContainer">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 主题切换功能
+            const themeButtons = document.querySelectorAll('.theme-btn');
+            const body = document.body;
+            
+            // 从本地存储加载主题
+            const savedTheme = localStorage.getItem('theme') || 'wine';
+            body.className = `theme-${savedTheme}`;
+            updateActiveThemeButton(savedTheme);
+            
+            // 主题按钮点击事件
+            themeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    body.className = `theme-${theme}`;
+                    localStorage.setItem('theme', theme);
+                    updateActiveThemeButton(theme);
+                });
+            });
+            
+            function updateActiveThemeButton(theme) {
+                themeButtons.forEach(btn => {
+                    if (btn.getAttribute('data-theme') === theme) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            
+            // 加载详细结果
+            const submissionId = {{ submission.id }};
+            
+            fetch(`/api/result/${submissionId}`)
+                .then(response => response.json())
+                .then(result => {
+                    renderDetailedResults(result.detailed_results);
+                })
+                .catch(error => {
+                    console.error('加载详细结果失败:', error);
+                    document.getElementById('detailsContainer').innerHTML = '<p class="text-center text-danger">加载详细结果失败，请重试</p>';
+                });
+            
+            // 渲染详细结果
+            function renderDetailedResults(results) {
+                const container = document.getElementById('detailsContainer');
+                container.innerHTML = '';
+                
+                results.forEach((result, index) => {
+                    const questionElement = document.createElement('div');
+                    questionElement.className = 'question-item';
+                    
+                    const statusClass = result.is_correct ? 'status-correct' : 'status-incorrect';
+                    const statusText = result.is_correct ? '正确' : '错误';
+                    const statusIcon = result.is_correct ? '<i class="bi bi-check-circle-fill"></i>' : '<i class="bi bi-x-circle-fill"></i>';
+                    
+                    // 格式化答案显示
+                    const formatAnswer = (answer) => {
+                        if (Array.isArray(answer)) {
+                            return answer.join(', ');
+                        }
+                        return answer;
+                    };
+                    
+                    questionElement.innerHTML = `
+                        <div class="question-header">
+                            <div class="question-number">第 ${index + 1} 题</div>
+                            <div class="question-status ${statusClass}">
+                                ${statusIcon} ${statusText} (${result.score} 分)
+                            </div>
+                        </div>
+                        <div class="question-text">${result.question_text}</div>
+                        <div class="answer-info user-answer">
+                            <strong>你的答案:</strong> ${formatAnswer(result.user_answer)}
+                        </div>
+                        <div class="answer-info correct-answer">
+                            <strong>正确答案:</strong> ${formatAnswer(result.correct_answer)}
+                        </div>
+                        <div class="answer-info explanation">
+                            <strong>解析:</strong> ${result.explanation}
+                        </div>
+                    `;
+                    
+                    container.appendChild(questionElement);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智星 - AI线上课程平台</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        /* 智星平台设计风格 */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease;
+        }
+        
+        /* 主题颜色定义 */
+        .theme-wine body {
+            background-color: #fdf2f4;
+        }
+        
+        .theme-blue body {
+            background-color: #e6f2ff;
+        }
+        
+        .theme-green body {
+            background-color: #e6f7f2;
+        }
+        
+        /* 主题选择器 */
+        .theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .theme-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        .theme-btn.active {
+            transform: scale(1.3);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+        }
+        
+        .theme-btn[data-theme="wine"] {
+            background: linear-gradient(135deg, #8b0000 0%, #a52a2a 100%);
+        }
+        
+        .theme-btn[data-theme="blue"] {
+            background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
+        }
+        
+        .theme-btn[data-theme="green"] {
+            background: linear-gradient(135deg, #006400 0%, #228b22 100%);
+        }
+        
+        /* 主容器 */
+        .main-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 左侧卡通画区域 */
+        .left-panel {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        .illustration {
+            max-width: 500px;
+        }
+        
+        /* 黑板 */
+        .blackboard {
+            background-color: #2c3e50;
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .blackboard-frame {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            border: 3px solid #8b4513;
+            border-radius: 12px;
+            pointer-events: none;
+        }
+        
+        .chalk-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #f1c40f;
+        }
+        
+        .chalk-line {
+            height: 2px;
+            background-color: #ecf0f1;
+            margin: 15px 0;
+        }
+        
+        .chalk-slogan {
+            font-size: 1.2rem;
+            text-align: center;
+            color: #ecf0f1;
+        }
+        
+        /* 书本 */
+        .books {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .book {
+            width: 80px;
+            text-align: center;
+        }
+        
+        .book-cover {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 5px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .book-pages {
+            background-color: #ecf0f1;
+            padding: 10px 5px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+        
+        /* 右侧登录/注册区域 */
+        .right-panel {
+            flex: 1;
+            max-width: 400px;
+            padding: 40px;
+        }
+        
+        /* 登录表单 */
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-header h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        /* 角色选择器 */
+        .role-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+            gap: 10px;
+        }
+        
+        .role-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #3498db;
+            background-color: white;
+            color: #3498db;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .role-btn:hover {
+            background-color: #f0f8ff;
+        }
+        
+        .role-btn.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        /* 表单选项 */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            color: #2c3e50;
+        }
+        
+        .forgot-password {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        
+        /* 提交按钮 */
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* 表单底部 */
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .form-footer a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 隐藏类 */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="theme-wine">
+    <!-- 主题选择器 -->
+    <div class="theme-selector">
+        <button class="theme-btn active" data-theme="wine" title="酒红色"></button>
+        <button class="theme-btn" data-theme="blue" title="深蓝色"></button>
+        <button class="theme-btn" data-theme="green" title="深绿色"></button>
+    </div>
+    
+    <div class="main-container">
+        <!-- 左侧卡通画区域 -->
+        <div class="left-panel">
+            <div class="illustration">
+                <!-- 黑板 -->
+                <div class="blackboard">
+                    <div class="blackboard-frame"></div>
+                    <div class="chalk-text">智星</div>
+                    <div class="chalk-line"></div>
+                    <div class="chalk-slogan" id="chalkSlogan">你的线上学习好伙伴</div>
+                </div>
+                
+                <!-- 书本 -->
+                <div class="books">
+                    <div class="book">
+                        <div class="book-cover">AI</div>
+                        <div class="book-pages">人工智能</div>
+                    </div>
+                    <div class="book">
+                        <div class="book-cover">学习</div>
+                        <div class="book-pages">在线教育</div>
+                    </div>
+                    <div class="book">
+                        <div class="book-cover">智星</div>
+                        <div class="book-pages">智慧平台</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧登录/注册区域 -->
+        <div class="right-panel">
+            <!-- 登录表单 -->
+            <div class="form-container" id="loginForm">
+                <div class="form-header">
+                    <h1>智星</h1>
+                    <p class="subtitle">AI线上课程平台</p>
+                </div>
+
+                <div class="role-selector">
+                    <button class="role-btn active" data-role="student">学生端</button>
+                    <button class="role-btn" data-role="teacher">教师端</button>
+                </div>
+
+                <form id="loginFormElement" class="form">
+                    <div class="form-group">
+                        <label for="loginEmail" id="loginLabel">邮箱或学号</label>
+                        <input type="text" id="loginEmail" name="email" placeholder="请输入邮箱或学号" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">密码</label>
+                        <input type="password" id="loginPassword" name="password" placeholder="请输入您的密码" required>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="rememberMe">
+                            <span>记住我</span>
+                        </label>
+                        <a href="#" class="forgot-password">忘记密码？</a>
+                    </div>
+
+                    <button type="submit" class="submit-btn">登录</button>
+                </form>
+
+                <div class="form-footer">
+                    <p>还没有账号？<a href="#" id="switchToRegister">立即注册</a></p>
+                </div>
+            </div>
+
+            <!-- 注册表单 -->
+            <div class="form-container hidden" id="registerForm">
+                <div class="form-header">
+                    <h1>注册账号</h1>
+                    <p class="subtitle">加入智星，开启学习之旅</p>
+                </div>
+
+                <div class="role-selector">
+                    <button class="role-btn active" data-role="student">学生</button>
+                    <button class="role-btn" data-role="teacher">教师</button>
+                </div>
+
+                <form id="registerFormElement" class="form">
+                    <div class="form-group">
+                        <label for="registerEmail">邮箱</label>
+                        <input type="email" id="registerEmail" name="email" placeholder="请输入您的邮箱" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="verificationCode">邮箱验证码</label>
+                        <div class="code-input-group">
+                            <input type="text" id="verificationCode" name="verificationCode" placeholder="请输入6位验证码" maxlength="6" pattern="[0-9]{6}" required>
+                            <button type="button" id="sendCodeBtn" class="send-code-btn">发送验证码</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerId" id="registerIdLabel">学号</label>
+                        <input type="text" id="registerId" name="id" placeholder="请输入学号" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="registerPassword">密码</label>
+                        <input type="password" id="registerPassword" name="password" placeholder="请设置密码（至少6位）" required minlength="6">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">确认密码</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="请再次输入密码" required>
+                    </div>
+
+                    <button type="submit" class="submit-btn">注册</button>
+                </form>
+
+                <div class="form-footer">
+                    <p>已有账号？<a href="#" id="switchToLogin">立即登录</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 主题切换功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeButtons = document.querySelectorAll('.theme-btn');
+            const body = document.body;
+            
+            // 从本地存储加载主题
+            const savedTheme = localStorage.getItem('theme') || 'wine';
+            body.className = `theme-${savedTheme}`;
+            updateActiveThemeButton(savedTheme);
+            
+            // 主题按钮点击事件
+            themeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    body.className = `theme-${theme}`;
+                    localStorage.setItem('theme', theme);
+                    updateActiveThemeButton(theme);
+                });
+            });
+            
+            function updateActiveThemeButton(theme) {
+                themeButtons.forEach(btn => {
+                    if (btn.getAttribute('data-theme') === theme) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            
+            // 登录/注册表单切换
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const switchToRegister = document.getElementById('switchToRegister');
+            const switchToLogin = document.getElementById('switchToLogin');
+            
+            switchToRegister.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                // 更新宣传语和表单为注册页的默认角色
+                const defaultRoleBtn = registerForm.querySelector('.role-btn.active');
+                if (defaultRoleBtn) {
+                    const role = defaultRoleBtn.getAttribute('data-role');
+                    updateSlogan(role);
+                    updateRegisterForm(role);
+                }
+            });
+            
+            switchToLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                // 更新宣传语和表单为登录页的默认角色
+                const defaultRoleBtn = loginForm.querySelector('.role-btn.active');
+                if (defaultRoleBtn) {
+                    const role = defaultRoleBtn.getAttribute('data-role');
+                    updateSlogan(role);
+                    updateLoginForm(role);
+                }
+            });
+            
+            // 黑板宣传语元素
+            const chalkSlogan = document.getElementById('chalkSlogan');
+            
+            // 更新黑板宣传语的函数
+            function updateSlogan(role) {
+                if (chalkSlogan) {
+                    if (role === 'student') {
+                        chalkSlogan.textContent = '你的线上学习好伙伴';
+                    } else if (role === 'teacher') {
+                        chalkSlogan.textContent = '你的线上教学好伙伴';
+                    }
+                }
+            }
+            
+            // 更新登录表单标签和占位符
+            function updateLoginForm(role) {
+                const loginLabel = document.getElementById('loginLabel');
+                const loginInput = document.getElementById('loginEmail');
+                if (role === 'student') {
+                    loginLabel.textContent = '邮箱或学号';
+                    loginInput.placeholder = '请输入邮箱或学号';
+                } else {
+                    loginLabel.textContent = '邮箱或工号';
+                    loginInput.placeholder = '请输入邮箱或工号';
+                }
+            }
+            
+            // 更新注册表单学号/工号标签和占位符
+            function updateRegisterForm(role) {
+                const registerIdLabel = document.getElementById('registerIdLabel');
+                const registerIdInput = document.getElementById('registerId');
+                if (role === 'student') {
+                    registerIdLabel.textContent = '学号';
+                    registerIdInput.placeholder = '请输入学号';
+                } else {
+                    registerIdLabel.textContent = '工号';
+                    registerIdInput.placeholder = '请输入工号';
+                }
+            }
+            
+            // 角色选择器（登录页和注册页）
+            const roleButtons = document.querySelectorAll('.role-btn');
+            roleButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const formContainer = this.closest('.form-container');
+                    const roleButtonsInContainer = formContainer.querySelectorAll('.role-btn');
+                    roleButtonsInContainer.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // 更新黑板宣传语
+                    const role = this.getAttribute('data-role');
+                    updateSlogan(role);
+                    
+                    // 更新表单标签和占位符
+                    if (formContainer.id === 'loginForm') {
+                        updateLoginForm(role);
+                    } else if (formContainer.id === 'registerForm') {
+                        updateRegisterForm(role);
+                    }
+                });
+            });
+            
+            // 页面加载时初始化表单（根据默认角色）
+            const defaultLoginRoleBtn = loginForm.querySelector('.role-btn.active');
+            if (defaultLoginRoleBtn) {
+                updateLoginForm(defaultLoginRoleBtn.getAttribute('data-role'));
+            }
+            
+            const defaultRegisterRoleBtn = registerForm.querySelector('.role-btn.active');
+            if (defaultRegisterRoleBtn) {
+                updateRegisterForm(defaultRegisterRoleBtn.getAttribute('data-role'));
+            }
+            
+            // 页面加载时初始化宣传语（根据登录页的默认角色）
+            const defaultRoleBtn = loginForm.querySelector('.role-btn.active');
+            if (defaultRoleBtn) {
+                updateSlogan(defaultRoleBtn.getAttribute('data-role'));
+            }
+            
+            // 登录表单提交
+            const loginFormElement = document.getElementById('loginFormElement');
+            loginFormElement.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const loginInput = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                const rememberMe = document.getElementById('rememberMe').checked;
+                const activeRole = loginForm.querySelector('.role-btn.active').getAttribute('data-role');
+                
+                // 简单验证
+                if (!loginInput) {
+                    alert(activeRole === 'student' ? '请输入邮箱或学号！' : '请输入邮箱或工号！');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    alert('密码长度至少为6位！');
+                    return;
+                }
+                
+                // 保存登录信息到本地存储（演示版本）
+                const loginData = {
+                    loginValue: loginInput,
+                    role: activeRole,
+                    timestamp: new Date().toISOString()
+                };
+                
+                if (rememberMe) {
+                    localStorage.setItem('loginData', JSON.stringify(loginData));
+                } else {
+                    sessionStorage.setItem('loginData', JSON.stringify(loginData));
+                }
+                
+                // 跳转到仪表盘
+                alert('登录成功！');
+                window.location.href = '/dashboard';
+            });
+            
+            // 注册表单提交
+            const registerFormElement = document.getElementById('registerFormElement');
+            registerFormElement.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('registerEmail').value.trim();
+                const verificationCode = document.getElementById('verificationCode').value.trim();
+                const id = document.getElementById('registerId').value.trim();
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const activeRole = registerForm.querySelector('.role-btn.active').getAttribute('data-role');
+                
+                // 简单验证
+                if (!email) {
+                    alert('请输入邮箱！');
+                    return;
+                }
+                
+                if (!verificationCode || verificationCode.length !== 6) {
+                    alert('请输入有效的6位验证码！');
+                    return;
+                }
+                
+                if (!id) {
+                    alert(`请输入${activeRole === 'student' ? '学号' : '工号'}！`);
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    alert('密码长度至少为6位！');
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    alert('两次输入的密码不一致！');
+                    return;
+                }
+                
+                // 保存注册信息到本地存储（演示版本）
+                const userData = {
+                    email: email,
+                    id: id,
+                    password: password,
+                    role: activeRole,
+                    registerTime: new Date().toISOString()
+                };
+                
+                const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+                existingUsers.push(userData);
+                localStorage.setItem('registeredUsers', JSON.stringify(existingUsers));
+                
+                alert('注册成功！');
+                
+                // 切换到登录页面
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

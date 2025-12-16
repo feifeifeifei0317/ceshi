@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ exam.title }} - 智星考试系统</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        /* 智星平台设计风格 */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease;
+        }
+        
+        /* 主题颜色定义 */
+        .theme-wine body {
+            background-color: #fdf2f4;
+        }
+        
+        .theme-blue body {
+            background-color: #e6f2ff;
+        }
+        
+        .theme-green body {
+            background-color: #e6f7f2;
+        }
+        
+        /* 主题选择器 */
+        .theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .theme-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .theme-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        .theme-btn.active {
+            transform: scale(1.3);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+        }
+        
+        .theme-btn[data-theme="wine"] {
+            background: linear-gradient(135deg, #8b0000 0%, #a52a2a 100%);
+        }
+        
+        .theme-btn[data-theme="blue"] {
+            background: linear-gradient(135deg, #003366 0%, #0066cc 100%);
+        }
+        
+        .theme-btn[data-theme="green"] {
+            background: linear-gradient(135deg, #006400 0%, #228b22 100%);
+        }
+        
+        /* 顶部导航栏 */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 10px 20px;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        /* 考试容器 */
+        .exam-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        /* 考试信息卡片 */
+        .exam-info {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .countdown {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        /* 题目区域 */
+        .question-section {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .question-item {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .question-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .question-number {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+        
+        /* 选项样式 */
+        .option-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option-item:hover {
+            background-color: #f8f9fa;
+            border-color: #3498db;
+        }
+        
+        .option-item.selected {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+        
+        /* 提交按钮 */
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* 模态框 */
+        .modal-header {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .modal-footer {
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body class="theme-wine">
+    <!-- 主题选择器 -->
+    <div class="theme-selector">
+        <button class="theme-btn active" data-theme="wine" title="酒红色"></button>
+        <button class="theme-btn" data-theme="blue" title="深蓝色"></button>
+        <button class="theme-btn" data-theme="green" title="深绿色"></button>
+    </div>
+    
+    <!-- 顶部导航栏 -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-star-fill"></i> 智星
+            </a>
+        </div>
+    </nav>
+    
+    <div class="exam-container">
+        <!-- 考试信息 -->
+        <div class="exam-info">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1>{{ exam.title }}</h1>
+                    <p class="text-muted">{{ exam.description }}</p>
+                </div>
+                <div class="col-md-4 text-right">
+                    <div class="countdown">
+                        <i class="bi bi-clock-fill"></i> 剩余时间: <span id="timeLeft">{{ exam.time_limit }}:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 考试表单 -->
+        <form id="examForm" class="question-section">
+            <input type="hidden" id="examId" value="{{ exam.id }}">
+            <input type="hidden" id="totalQuestions" value="{{ exam.get_questions() | length }}">
+            
+            <!-- 题目将通过JavaScript动态加载 -->
+            <div id="questionsContainer">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">加载中...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 学生信息 -->
+            <div class="mb-3">
+                <label for="studentName" class="form-label">姓名</label>
+                <input type="text" class="form-control" id="studentName" placeholder="请输入您的姓名" required>
+            </div>
+            
+            <!-- 提交按钮 -->
+            <button type="button" id="submitBtn" class="submit-btn">
+                <i class="bi bi-check-circle-fill"></i> 提交考试
+            </button>
+        </form>
+    </div>
+    
+    <!-- 提交确认模态框 -->
+    <div class="modal fade" id="submitConfirmModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">提交确认</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>确定要提交考试吗？提交后将无法修改答案。</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" id="confirmSubmitBtn" class="btn btn-primary">确定提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 主题切换功能
+            const themeButtons = document.querySelectorAll('.theme-btn');
+            const body = document.body;
+            
+            // 从本地存储加载主题
+            const savedTheme = localStorage.getItem('theme') || 'wine';
+            body.className = `theme-${savedTheme}`;
+            updateActiveThemeButton(savedTheme);
+            
+            // 主题按钮点击事件
+            themeButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    body.className = `theme-${theme}`;
+                    localStorage.setItem('theme', theme);
+                    updateActiveThemeButton(theme);
+                });
+            });
+            
+            function updateActiveThemeButton(theme) {
+                themeButtons.forEach(btn => {
+                    if (btn.getAttribute('data-theme') === theme) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            
+            // 加载考试数据
+            const examId = document.getElementById('examId').value;
+            let examData;
+            let answers = {};
+            let startTime = Date.now();
+            
+            fetch(`/api/exam/${examId}`)
+                .then(response => response.json())
+                .then(data => {
+                    examData = data;
+                    renderQuestions(data.questions);
+                    startCountdown(data.time_limit);
+                })
+                .catch(error => {
+                    console.error('加载考试数据失败:', error);
+                    document.getElementById('questionsContainer').innerHTML = '<p class="text-center text-danger">加载考试失败，请重试</p>';
+                });
+            
+            // 渲染题目
+            function renderQuestions(questions) {
+                const container = document.getElementById('questionsContainer');
+                container.innerHTML = '';
+                
+                questions.forEach((question, index) => {
+                    const questionElement = document.createElement('div');
+                    questionElement.className = 'question-item';
+                    questionElement.innerHTML = `
+                        <div class="question-number">第 ${index + 1} 题</div>
+                        <div class="question-text mb-3">${question.question_text}</div>
+                        <div class="options-container" id="options-${question.id}">
+                            <!-- 选项将动态生成 -->
+                        </div>
+                    `;
+                    
+                    // 生成选项
+            const optionsContainer = questionElement.querySelector(`#options-${question.id}`);
+            const options = question.options;
+            
+            if (question.question_type === 'true_false') {
+                // 判断题
+                const trueOption = createOptionElement('对', question.id, 'true', question.question_type);
+                const falseOption = createOptionElement('错', question.id, 'false', question.question_type);
+                optionsContainer.appendChild(trueOption);
+                optionsContainer.appendChild(falseOption);
+            } else {
+                // 选择题（单选/多选）
+                if (Array.isArray(options)) {
+                    // 数组格式选项（如 ['选项1', '选项2', '选项3']）
+                    const optionLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+                    options.forEach((optionText, index) => {
+                        const optionKey = optionLabels[index] || index;
+                        const option = createOptionElement(optionText, question.id, optionKey, question.question_type);
+                        optionsContainer.appendChild(option);
+                    });
+                } else if (typeof options === 'object' && options !== null) {
+                    // 对象格式选项（如 {'A': '选项1', 'B': '选项2'}）
+                    for (const [key, value] of Object.entries(options)) {
+                        const option = createOptionElement(value, question.id, key, question.question_type);
+                        optionsContainer.appendChild(option);
+                    }
+                }
+            }
+                    
+                    container.appendChild(questionElement);
+                });
+            }
+            
+            // 创建选项元素
+            function createOptionElement(text, questionId, optionValue, questionType) {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option-item';
+                optionDiv.innerHTML = `
+                    <input type="${questionType === 'multiple_choice' ? 'checkbox' : 'radio'}" 
+                           id="option-${questionId}-${optionValue}" 
+                           name="question-${questionId}" 
+                           value="${optionValue}" 
+                           ${questionType === 'multiple_choice' ? '' : 'required'}>
+                    <label for="option-${questionId}-${optionValue}" class="ms-2">${text}</label>
+                `;
+                
+                // 选项点击事件
+                optionDiv.addEventListener('click', function() {
+                    const input = this.querySelector('input');
+                    input.checked = !input.checked;
+                    updateOptionSelection(this, input);
+                    updateAnswers(questionId, questionType);
+                });
+                
+                // 输入框点击事件（防止冒泡）
+                const input = optionDiv.querySelector('input');
+                input.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    updateOptionSelection(optionDiv, this);
+                    updateAnswers(questionId, questionType);
+                });
+                
+                return optionDiv;
+            }
+            
+            // 更新选项选中状态
+            function updateOptionSelection(optionDiv, input) {
+                const container = optionDiv.parentElement;
+                const options = container.querySelectorAll('.option-item');
+                
+                if (input.type === 'radio') {
+                    // 单选按钮
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    if (input.checked) {
+                        optionDiv.classList.add('selected');
+                    }
+                } else {
+                    // 复选框
+                    if (input.checked) {
+                        optionDiv.classList.add('selected');
+                    } else {
+                        optionDiv.classList.remove('selected');
+                    }
+                }
+            }
+            
+            // 更新答案
+            function updateAnswers(questionId, questionType) {
+                const inputs = document.querySelectorAll(`input[name="question-${questionId}"]:checked`);
+                const selectedValues = Array.from(inputs).map(input => input.value);
+                
+                answers[questionId] = selectedValues;
+            }
+            
+            // 倒计时功能
+            function startCountdown(minutes) {
+                let timeLeft = minutes * 60;
+                const countdownElement = document.getElementById('timeLeft');
+                
+                const timer = setInterval(() => {
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    countdownElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        // 时间到，自动提交
+                        submitExam();
+                    }
+                    
+                    timeLeft--;
+                }, 1000);
+            }
+            
+            // 提交考试
+            document.getElementById('submitBtn').addEventListener('click', function() {
+                const submitModal = new bootstrap.Modal(document.getElementById('submitConfirmModal'));
+                submitModal.show();
+            });
+            
+            document.getElementById('confirmSubmitBtn').addEventListener('click', function() {
+                submitExam();
+            });
+            
+            function submitExam() {
+                const studentName = document.getElementById('studentName').value.trim();
+                if (!studentName) {
+                    alert('请输入您的姓名');
+                    return;
+                }
+                
+                const timeTaken = Math.floor((Date.now() - startTime) / 1000);
+                
+                const data = {
+                    exam_id: examId,
+                    student_name: studentName,
+                    answers: answers,
+                    time_taken: timeTaken
+                };
+                
+                fetch('/api/submit_exam', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        // 跳转到结果页面
+                        window.location.href = `/result/${result.submission_id}`;
+                    } else {
+                        alert('提交失败: ' + result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('提交失败:', error);
+                    alert('提交失败，请重试');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
